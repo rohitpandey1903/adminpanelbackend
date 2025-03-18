@@ -14,11 +14,30 @@ export class Employee {
   @Prop({ required: true })
   email: string;
 
-  @Prop()
+  @Prop({ required: true })
   department: string;
 
-  @Prop()
+  @Prop({required : true})
   position: string;
+
+  @Prop({default : 0})
+  monthlyPay: number;
+
+  // Afterwards all the properties are mutable via endpoints not required true then
+  @Prop({
+    type: {
+      taken: { type: Number, default: 0 },
+      remaining: { type: Number, default: 12 }
+    },
+    default: { taken: 0, remaining: 12 }
+  })
+  leaves: {
+    taken: number;
+    remaining: number;
+  };
+
+  @Prop({ enum : ['Regular', 'Rotating', 'Flexible'], default : 'Regular'})
+  shift : string;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);
