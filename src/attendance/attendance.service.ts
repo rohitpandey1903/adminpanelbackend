@@ -33,7 +33,7 @@ export class AttendanceService {
     return newAttendaceRecord;
   }
 
-  findAll() {
+  async findAll() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

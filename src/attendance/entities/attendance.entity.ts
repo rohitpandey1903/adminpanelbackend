@@ -15,7 +15,7 @@ export class Attendance {
     @Prop({required : true})
     date : Date;
 
-    @Prop({required : true, enum : ['Present', 'Absent', 'Leave'], default : 'Absent'})
+    @Prop({required : true, enum : ['Present', 'Absent', 'Leave', 'Not Marked'], default : 'Not Marked'})
     status : string;
 
     @Prop()
