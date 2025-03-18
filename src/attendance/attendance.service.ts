@@ -33,6 +33,23 @@ export class AttendanceService {
     return newAttendaceRecord;
   }
 
+  async startTheDay() {
+    const employees = await this.employeeModel.find().exec();
+
+    const attendanceRecords = await Promise.all(
+      employees.map( async (employee) => {
+        const newRecord = new this.attendanceModel({
+          date : new Date(),
+          eid : employee.eid,
+          employee,
+        });
+        return newRecord.save();
+      })
+    );
+
+    return attendanceRecords;
+  }
+
   async findAll() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

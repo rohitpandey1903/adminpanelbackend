@@ -17,6 +17,11 @@ export class AttendanceController {
     return this.attendanceService.findAll();
   }
 
+  @Post('start-scrum')
+  startTheDay() {
+    return this.attendanceService.startTheDay();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.attendanceService.findOne(+id);
