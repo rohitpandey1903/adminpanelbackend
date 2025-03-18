@@ -15,24 +15,67 @@ export class AttendanceService {
 
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { eid, status } = createAttendanceDto;
+    
+    // Find employee
     const employee = await this.employeeModel.findOne({ eid }).exec();
     if (!employee) {
       throw new Error('Employee not found');
     }
-    const newAttendaceRecord = new this.attendanceModel({
-      employee,
-      ...createAttendanceDto
-    });
-    newAttendaceRecord.date = new Date();
-    await newAttendaceRecord.save();
-    if(status === 'Absent'){
-      employee.leaves.taken += 1;
-      employee.leaves.remaining -= 1;
-      await employee.save();
+    
+    // Check for existing attendance record in the last 24 hours
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const existingRecord = await this.attendanceModel.findOne({ 
+      eid,
+      date: { $gte: today, $lt: tomorrow }
+    }).exec();
+    
+    let attendanceRecord;
+    
+    if (existingRecord) {
+      // Update existing record
+      const oldStatus = existingRecord.status;
+      existingRecord.status = status;
+      existingRecord.time = createAttendanceDto.time || existingRecord.time;
+      existingRecord.remarks = createAttendanceDto.remarks || existingRecord.remarks;
+      
+      attendanceRecord = await existingRecord.save();
+      
+      // Handle leave accounting if status changed
+      if (status === 'Absent' && oldStatus !== 'Absent') {
+        employee.leaves.taken += 1;
+        employee.leaves.remaining -= 1;
+        await employee.save();
+      } else if (status !== 'Absent' && oldStatus === 'Absent') {
+        // If changing from Absent to something else, restore the leave
+        employee.leaves.taken -= 1;
+        employee.leaves.remaining += 1;
+        await employee.save();
+      }
+    } else {
+      // Create new record (unlikely if startTheDay was called)
+      const newAttendanceRecord = new this.attendanceModel({
+        employee,
+        ...createAttendanceDto,
+        date: new Date()
+      });
+      
+      attendanceRecord = await newAttendanceRecord.save();
+      
+      // Handle leaves if new record is created with Absent status
+      if (status === 'Absent') {
+        employee.leaves.taken += 1;
+        employee.leaves.remaining -= 1;
+        await employee.save();
+      }
     }
-    return newAttendaceRecord;
+    
+    return attendanceRecord;
   }
-
   async startTheDay() {
     const employees = await this.employeeModel.find().exec();
 
