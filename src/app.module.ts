@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { EmployeeModule } from './employee/employee.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { BookingModule } from './booking/booking.module';
+import { PropertyModule } from './property/property.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { BookingModule } from './booking/booking.module';
     EmployeeModule,
     AttendanceModule,
     BookingModule,
+    PropertyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
