@@ -24,11 +24,29 @@ export class EmployeeService {
     return `This action returns a #${id} employee`;
   }
 
-  update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
-    return `This action updates a #${id} employee`;
+  async update(eid: number, updateEmployeeDto: UpdateEmployeeDto): Promise<Employee> {
+    const updatedEmployee = await this.employeeModel.findOneAndUpdate(
+      { eid }, // Find by eid field instead of _id
+      { $set: updateEmployeeDto },
+      { new: true, runValidators: true }
+    ).exec();
+    
+    if (!updatedEmployee) {
+      throw new Error(`Employee with EID ${eid} not found`);
+    }
+    
+    return updatedEmployee;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} employee`;
+  async remove(eid: number): Promise<Employee> {
+    const deletedEmployee = await this.employeeModel.findOneAndDelete(
+      { eid } // Find by eid field instead of _id
+    ).exec();
+    
+    if (!deletedEmployee) {
+      throw new Error(`Employee with EID ${eid} not found`);
+    }
+    
+    return deletedEmployee;
   }
 }

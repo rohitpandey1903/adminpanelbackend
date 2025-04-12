@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -22,13 +22,13 @@ export class EmployeeController {
     return this.employeeService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
-    return this.employeeService.update(+id, updateEmployeeDto);
+  @Put('update/:eid')
+  update(@Param('eid') eid: number, @Body() updateEmployeeDto: UpdateEmployeeDto) {
+    return this.employeeService.update(+eid, updateEmployeeDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.employeeService.remove(+id);
+  @Delete('delete/:eid')
+  remove(@Param('eid') eid: number) {
+    return this.employeeService.remove(+eid);
   }
 }
